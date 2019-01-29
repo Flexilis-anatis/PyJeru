@@ -1,7 +1,10 @@
-# Jeru
+# PyJeru
 ### A Forth-based interpreted language
 
-A toy language I'm making. Here's an example of a fibbonacci calculator!
+(main implementation (here)[https://github.com/Flexilis-anatis/Jeru])
+
+A python implementation of a toy language I'm making. Here's an example of a
+Fibbonacci calculator!
 
 ```Forth
 [
