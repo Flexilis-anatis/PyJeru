@@ -1,4 +1,5 @@
 from src import token
+from src.block import Block
 
 # Internal token ID's. Don't use these
 TOKEN_BLOCK_START = -1
@@ -61,7 +62,7 @@ class Scanner:
             tok = token.Token(self.line, token.TOKEN_FLOAT, float(self.__sub))
         else:
             tok = token.Token(self.line, token.TOKEN_INT, int(self.__sub))
-        self.stop += 1
+        if not self.__at_end: self.stop += 1
         return tok
 
     def __parse_comment(self):
@@ -80,7 +81,7 @@ class Scanner:
         self.stop += 1
 
     def __parse_word(self, emit_block_tokens=False):
-        while not self.__at_end and self.__current() not in WHITESPACE:
+        while (not self.__at_end) and (self.__current() not in WHITESPACE):
             self.stop += 1
         tok = token.Token(self.line,
                           token.BUILTIN_WORDS.get(self.__sub,
@@ -88,10 +89,8 @@ class Scanner:
                           self.__sub)
         if not self.emit_block_tokens:
             if tok.id == token.TOKEN_LBLOCK:
-                tok.item = self.__parse_block()
+                tok.item = self.__parse_block(self.line)
                 tok.id = token.TOKEN_BLOCK
-            elif tok.id == token.TOKEN_RBLOCK:
-                raise Exception("[line {}] unmatched ]".format(self.line))
 
         return tok
 
@@ -111,18 +110,20 @@ class Scanner:
         self.stop += 1
         return tok
 
-    def __parse_block(self):
+    def __parse_block(self, line, noerror=False):
         tokens = []
         self.emit_block_tokens = True
+        error = True
         for tok in self:
             if tok.id == token.TOKEN_LBLOCK:
-                tok.item = self.__parse_block();
+                tok.item = self.__parse_block(-1, True);
                 self.emit_block_tokens = True
                 tok.id = token.TOKEN_BLOCK
             elif tok.id == token.TOKEN_RBLOCK:
+                error = False
                 break
             tokens.append(tok)
-        if self.__at_end:
-            raise Exception("[line {}] Unmatched [".format(self.line))
+        if self.__at_end and error and not noerror:
+            raise Exception("[line {}] Unmatched [".format(line))
         self.emit_block_tokens = False
-        return tokens
+        return Block(tokens)

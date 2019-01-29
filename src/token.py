@@ -21,6 +21,12 @@ TOKEN_IFELSE    = 19
 TOKEN_WHILE     = 20
 TOKEN_LBLOCK    = 21
 TOKEN_RBLOCK    = 22
+TOKEN_NOPOP     = 23
+TOKEN_SWAPTOP   = 24
+TOKEN_GTE       = 25
+TOKEN_LTE       = 26
+TOKEN_EQUALS    = 27
+TOKEN_STACKLOG  = 28
 
 BUILTIN_WORDS = {
     "print": TOKEN_PRINT,
@@ -31,7 +37,10 @@ BUILTIN_WORDS = {
     "/": TOKEN_DIVIDE,
     "*": TOKEN_MULTIPLY,
     ">": TOKEN_GREATER,
+    ">=": TOKEN_GTE,
     "<": TOKEN_LESS,
+    "<=": TOKEN_LTE,
+    "=": TOKEN_EQUALS,
     "pop": TOKEN_POP,
     "exec": TOKEN_EXEC,
     "run": TOKEN_RUN,
@@ -39,7 +48,10 @@ BUILTIN_WORDS = {
     "ifelse": TOKEN_IFELSE,
     "while": TOKEN_WHILE,
     "[": TOKEN_LBLOCK,
-    "]": TOKEN_RBLOCK
+    "]": TOKEN_RBLOCK,
+    "nopop": TOKEN_NOPOP,
+    "swaptop": TOKEN_SWAPTOP,
+    "stacklog": TOKEN_STACKLOG
 }
 
 class Token:
@@ -47,3 +59,7 @@ class Token:
         self.id = id
         self.line = line
         self.item = item
+        
+    def __str__(self):
+        return "<Token id={}. item={}, line={}>".format(self.id, self.item, self.line)
+    __repr__ = __str__

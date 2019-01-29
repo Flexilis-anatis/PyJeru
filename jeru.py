@@ -1,26 +1,46 @@
 #!/usr/bin/python3
 from src.scanner import Scanner
+from src.runner import run
+from src.vm import VM
 from src.token import *
+import sys, readline
 
-def lex_to_string(tok):
-    lexeme = "'" + str(tok.item) + "'"
-    if tok.id == TOKEN_STRING:
-        lexeme = repr(tok.item)
-    elif tok.id == TOKEN_BLOCK:
-        lexeme = "["
-        for subtok in tok.item:
-            lexeme += lex_to_string(subtok) + ", "
-        lexeme = lexeme[:-2] + "]"
-    return lexeme
+def run_source(source, vm):
+    scan = Scanner(source)
+    oldvm = vm
+    try:
+        for tok in scan:
+            try:
+                run(vm, tok, lambda:next(scan))
+            except Exception as e:
+                print("Runtime Error:", e, file=sys.stderr)
+                return oldvm, True
+    except Exception as e:
+        print("Lexing Error:", e, file=sys.stderr)
+        return oldvm, True
+    return vm, False
 
-scan = Scanner("#comment# 3 word [ print [ pop test ] ] ] hi \n\"str\\nt\" #comment again#")
-iters = 20
-try:
-    for tok in scan:
-        iters -= 1
-        if not iters:
-            break
-        print(lex_to_string(tok))
-except Exception as e:
-    import sys
-    print("Error:", e, file=sys.stderr)
+if len(sys.argv) == 1:
+    print("Welcome to the PyJeru REPL")
+    vm = VM()
+    while 1:
+        text = input(">>> ")
+        if len(text) == 0:
+            continue
+        if text[0] == "?":
+            readline.add_history(text)
+            text = text[1:]
+        vm, error = run_source(text, vm)
+        if not error:
+            print()
+            vm.log()
+    
+else:
+    vm = VM()
+    for file in sys.argv[1:]:
+        with open(file) as f:
+            vm, error = run_source(f.read(), vm)
+            if error:
+                break
+                
+
