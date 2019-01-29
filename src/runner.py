@@ -1,4 +1,5 @@
 from src import token
+from copy import deepcopy
 
 def mathop(vm, tok, intop, floatop, nopop):
     if len(vm.data_stack) < 2:
@@ -25,6 +26,7 @@ def mathop(vm, tok, intop, floatop, nopop):
     vm.data_stack.append(float(floatop(x, y)))
 
 def run_block(vm, block):
+    block.at = 0
     for subtok in block:
         run(vm, subtok, lambda : next(block))
     block.at = 0
@@ -55,6 +57,7 @@ def run(vm, tok, get_next, nopop=False):
 
     elif tok.id == token.TOKEN_STACKLOG:
         vm.log()
+        input()
 
     elif tok.id == token.TOKEN_NOPOP:
         run(vm, get_next(), get_next, True)
@@ -78,8 +81,9 @@ def run(vm, tok, get_next, nopop=False):
         elif len(vm.code_stack) < 1:
             raise Exception("[line {}] need code to execute for if statement".format(tok.line))
         if vm.data_stack.pop():
-            run_block(vm.code_stack[-1])
-        vm.code_stack.pop()
+            run_block(vm, vm.code_stack.pop())
+        else:
+            vm.code_stack.pop()
 
     elif tok.id == token.TOKEN_IFELSE:
         if len(vm.data_stack) < 1:
@@ -87,9 +91,9 @@ def run(vm, tok, get_next, nopop=False):
         elif len(vm.code_stack) < 2:
             raise Exception("[line {}] need code to execute for if-else statement".format(tok.line))
         if vm.data_stack.pop():
-            run_block(vm.code_stack[-2])
+            run_block(vm, vm.code_stack[-2])
         else:
-            run_block(vm.code_stack[-1])
+            run_block(vm, vm.code_stack[-1])
         vm.code_stack = vm.code_stack[:-2]
 
     elif tok.id == token.TOKEN_WHILE:
@@ -159,7 +163,7 @@ def run(vm, tok, get_next, nopop=False):
         vm.words[word.item] = vm.code_stack.pop()
 
     elif tok.id == token.TOKEN_WORD:
-        block = vm.words.get(tok.item, "0")
+        block = deepcopy(vm.words.get(tok.item, "0"))()
         if block == "0": # words can't be number literals
             raise Exception("[line {}] cannot find word '{}'".format(tok.item))
         run_block(vm, block)

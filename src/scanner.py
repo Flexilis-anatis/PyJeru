@@ -1,9 +1,7 @@
 from src import token
 from src.block import Block
 
-# Internal token ID's. Don't use these
-TOKEN_BLOCK_START = -1
-WHITESPACE = "\t\n "
+WHITESPACE = "\t\n\r "
 
 class Scanner:
     def __init__(self, source):
