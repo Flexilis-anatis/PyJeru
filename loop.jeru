@@ -1,4 +1,0 @@
-#!/usr/bin/jeru
-#
-100000 # the amount to loop #
-[ 1 - copy ] while
