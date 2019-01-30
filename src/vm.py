@@ -7,6 +7,7 @@ def lex_to_string(item):
 class VM:
     def __init__(self):
         self.words = {}
+        self.global_registers = {}
         self.data_stack = []
         self.code_stack = []
 
@@ -17,5 +18,10 @@ class VM:
         string = "["
         for data in self.data_stack:
             string += lex_to_string(data) + ", "
-        string = string[:-2] + "], " + str(len(self.code_stack))
-        print(string)
+        string = string[:-2] + "], {";
+
+        for reg in self.global_registers:
+            string += reg + ": " + lex_to_string(self.global_registers[reg])
+        string += "},"
+
+        print(string, str(len(self.code_stack)))

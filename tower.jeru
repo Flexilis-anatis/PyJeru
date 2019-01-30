@@ -42,4 +42,8 @@
          square # cleans up for us #
 ] word tower
 
-6 tower
+20
+[
+    20 tower
+    dec copy
+] while

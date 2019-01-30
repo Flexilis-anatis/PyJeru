@@ -81,15 +81,18 @@ class Scanner:
     def __parse_word(self, emit_block_tokens=False):
         while (not self.__at_end) and (self.__current() not in WHITESPACE):
             self.stop += 1
+        lex = self.__sub
         tok = token.Token(self.line,
-                          token.BUILTIN_WORDS.get(self.__sub,
+                          token.BUILTIN_WORDS.get(lex,
                                                   token.TOKEN_WORD),
-                          self.__sub)
+                          lex)
         if not self.emit_block_tokens:
             if tok.id == token.TOKEN_LBLOCK:
                 tok.item = self.__parse_block(self.line)
                 tok.id = token.TOKEN_BLOCK
 
+        if tok.id == token.TOKEN_WORD and tok.item[0] == "$":
+            tok.id = token.TOKEN_REG
         return tok
 
     def __parse_string(self):
@@ -121,7 +124,7 @@ class Scanner:
                 error = False
                 break
             tokens.append(tok)
-        if self.__at_end and error and not noerror:
+        if self.__at_end and error:
             raise Exception("[line {}] Unmatched [".format(line))
         self.emit_block_tokens = False
         return Block(tokens)

@@ -1,0 +1,47 @@
+[ 1 + ] word increase
+[ 1 - ] word decrease
+[ "*" * "\n" + ] word generate-stars
+[ generate-stars print pop ] word stars
+
+[
+    store size
+    "" 0
+    [
+        increase
+        copy generate-stars
+        swaptop
+        store tmp
+          +
+        tmp
+        copy size <
+    ] while
+    pop print pop
+] word triangle
+
+[
+    copy store width "" swaptop
+    [
+        decrease swaptop
+        width generate-stars +
+        swaptop
+        copy
+    ] while
+    pop print pop
+] word square
+
+[
+    copy triangle
+         square
+] word tower
+
+[
+    copy triangle
+         square
+]
+
+20
+[
+    decrease
+    20 tower
+    copy
+] while

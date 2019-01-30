@@ -141,6 +141,8 @@ def run(vm, tok, get_next, nopop=False):
         mathop(vm, tok, int.__gt__, float.__gt__, nopop)
     elif tok.id == token.TOKEN_GTE:
         mathop(vm, tok, int.__ge__, float.__ge__, nopop)
+    elif tok.id == token.TOKEN_LTE:
+        mathop(vm, tok, int.__le__, float.__le__, nopop)
     elif tok.id == token.TOKEN_LESS:
         mathop(vm, tok, int.__lt__, float.__lt__, nopop)
     elif tok.id == token.TOKEN_EQUALS:
@@ -162,8 +164,20 @@ def run(vm, tok, get_next, nopop=False):
             raise Exception("[line {}] need code block to assign word".format(tok.line))
         vm.words[word.item] = vm.code_stack.pop()
 
+    elif tok.id == token.TOKEN_STORE:
+        reg = get_next()
+        if reg.id != token.TOKEN_WORD:
+            raise Exception("[line {}] excepted register name after 'store' keyword".format(tok.line))
+        if len(vm.data_stack) < 1:
+            raise Exception("[line {}] need data to assign to register".format(tok.line))
+        vm.global_registers[reg.item] = vm.data_stack.pop()
+
     elif tok.id == token.TOKEN_WORD:
-        block = deepcopy(vm.words.get(tok.item, "0"))()
-        if block == "0": # words can't be number literals
-            raise Exception("[line {}] cannot find word '{}'".format(tok.item))
-        run_block(vm, block)
+        register = vm.global_registers.get(tok.item, "0")
+        if register == "0":
+            block = deepcopy(vm.words.get(tok.item, "0"))
+            if block == "0":
+                raise Exception("[line {}] cannot find word '{}'".format(tok.line, tok.item))
+            run_block(vm, block)
+            return
+        vm.data_stack.append(register)

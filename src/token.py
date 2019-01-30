@@ -27,6 +27,8 @@ TOKEN_GTE       = 25
 TOKEN_LTE       = 26
 TOKEN_EQUALS    = 27
 TOKEN_STACKLOG  = 28
+TOKEN_STORE     = 29
+TOKEN_REG       = 30
 
 BUILTIN_WORDS = {
     "print": TOKEN_PRINT,
@@ -51,7 +53,8 @@ BUILTIN_WORDS = {
     "]": TOKEN_RBLOCK,
     "nopop": TOKEN_NOPOP,
     "swaptop": TOKEN_SWAPTOP,
-    "stacklog": TOKEN_STACKLOG
+    "stacklog": TOKEN_STACKLOG,
+    "store": TOKEN_STORE
 }
 
 class Token:
